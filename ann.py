@@ -1,8 +1,7 @@
 import numpy as np
 from utils import r2_score, mean_squared_error
 
-class NeuralNetRegressor:
-
+class NeuralNetMLP:
     """Multi-layer perceptron for regression or classification.
 
     Parameters
@@ -46,7 +45,7 @@ class NeuralNetRegressor:
         Output bias after fitting.
 
     """
-    def __init__(self, n_hidden = [30],  epochs=100, eta=0.001, shuffle=True,
+    def __init__(self, n_hidden=30,  epochs=100, eta=0.001, shuffle=True,
                  batch_size=1, seed=None, alpha=0.0001, activation='sigmoid', tpe = "logistic"):
 
         self.random = np.random.RandomState(seed)
@@ -59,7 +58,6 @@ class NeuralNetRegressor:
         self.alpha = alpha
         self.activation = activation
         self.tpe = tpe
-	self.n_hidden_layers = len(self.n_hidden)
 
         self.W_h = None
         self.b_h = None
@@ -100,25 +98,18 @@ class NeuralNetRegressor:
     def initialize_weights_and_bias(self, X_train):
         """ initalizing weight and biases in both hidden and output layer.
 
-        X_train: array, shape = [n_samples, n_features]
-            Input layer with original features.
+        X_train
+
         """
+
+        n_output = 1
         n_samples, n_features = np.shape(X_train)
-	n_output = n_samples # This is the numeber of gridcells and we want to make one prediction pr cell. 
-	# It this doesn't work calculate the number of griddcells.
+        # Using three hidden h_layers
+        self.b_h =  np.ones((1, self.n_hidden))
+        self.W_h = self.random.normal(loc=0.0, scale=0.1, size=(n_features, self.n_hidden))
 
-        self.b_h =  [np.ones((1, self.n_hidden[i])) for i in range(len(self.n_hidden)) ]
-        self.W_h = []
-
-	for i in range(len(self.n_hidden)):
-		if (i == 0):
-			self.W_h.append(self.random.normal(loc=0.0, scale=0.1, size=(n_features, self.n_hidden[i])))
-		else:
-			self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden[i-1], self.n_hidden[i]))
-
-
-        self.b_out = np.ones((1, n_outputs)) 
-        self.W_out = self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden[-1], n_output))
+        self.b_out = np.ones(n_output)
+        self.W_out = self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden, n_output))
 
 
     def _forwardprop(self, X):
@@ -127,18 +118,17 @@ class NeuralNetRegressor:
         X : array, shape = [n_samples, n_features]
             Input layer with original features.
         """
-	A_hidden = []
-	Z_hidden = []
 
-	for i in range(self.n_hidden_layers):
-		z_temp =  np.dot(X, self.W_h[i])+ self.b_h[i]
-	        Z_hidden.append(z_temp)	
-		a_temp = self.activate(z_temp, self.activation, deriv = False)
-	        A_hidden.append(a_temp)
+        Z_hidden = np.clip(np.dot(X, self.W_h), -250,250)+ self.b_h
+        A_hidden = self.activate(Z_hidden, self.activation, deriv = False)
+        Z_out = np.dot(A_hidden, self.W_out) + self.b_out
 
-        Z_out = np.dot(a_temp, self.W_out) + self.b_out
-	# Linear activation in the output layer when you have 
-        A_out = Z_out
+        if (self.tpe == "regression"):
+            A_out = self.activate(Z_out, "linear", deriv = False)
+        elif (self.tpe == "logistic"):
+            A_out = self.activate(Z_out, "sigmoid", deriv = False)
+        else:
+            raise ValueError('Invalid activation function {}'.format(self.tpe))
 
         return Z_hidden, A_hidden, Z_out, A_out
 
@@ -161,46 +151,33 @@ class NeuralNetRegressor:
             The index where you iterate from.
         """
 
-	# This is the derivative assuming our costfunction is 0.5*two_norm(A_out - y)**2
-	# This results in different backpropagation 
+        delta_a_out = A_out - y_train[batch_idx].reshape(self.batch_size, 1)
 
-        error_out = A_out - y_train[batch_idx].reshape(self.batch_size, 1)
-        # Since we are in the regression case with a linear ouput funct.	
-	act_derivative_out = 1
+        if (self.tpe == "regression"):
+            act_derivative_out = self.activate(Z_out, "linear", deriv = True)
+        elif (self.tpe == "logistic"):
+            act_derivative_out = self.activate(Z_out, "sigmoid", deriv = True)
+        else:
+            raise ValueError('Invalid activation function {}'.format(self.tpe))
+        # Since we are in the regression case with a linear ouput funct.
 
-        delta_out = error_out*act_derivative_out
-
-        grad_w_out = np.dot(A_hidden[-1].T, delta_out)
+        delta_out = delta_a_out*act_derivative_out
+        grad_w_out = np.dot(A_hidden.T, delta_out)
         grad_b_out = np.sum(delta_out, axis=0)
 
         self.W_out = self.W_out - self.eta * grad_w_out
         self.b_out = self.b_out - self.eta * grad_b_out
 
-        for i in range(self.n_hidden_layers):
-		layer_ind = self.n_hidden_layers-1-i
+        print(self.W_out)
 
-        	act_derivative_h = self.activate(Z_hidden[layer_ind], self.activation, deriv=True)
-		if (i == 0):
-        		error_prev = np.dot(delta_out, self.W_out.T) * act_derivative_h
-		else:
-			error_prev = np.dot(delta_prev, self.W_h[layer_ind + 1].T) * act_derivative_h	
+        act_derivative_h = self.activate(Z_hidden, self.activation, deriv=True)
+        error_hidden = np.dot(delta_out, self.W_out.T) * act_derivative_h
+        grad_w_h = np.dot(X_train[batch_idx].T, error_hidden)
+        grad_b_h = np.sum(error_hidden, axis=0)
 
-        	grad_w_h = np.dot(A_hidden[layer_ind - 1].T, error_hidden)
-        	grad_b_h = np.sum(error_hidden, axis=0)
-
-        	self.W_h[layer_ind + 1] = self.W_h[layer_ind + 1] - self.eta * grad_w_h
-        	self.b_h[layer_ind + 1] = self.b_h[layer_ind + 1] - self.eta * grad_b_h
-
-	error_last = np.dot(delta_prev, self.W_h[layer_ind + 1].T) * act_derivative_h	
-
-	grad_w_h = np.dot(X_train[batch_idx].T, error_last)
-	grad_b_h = np.sum(error_hidden, axis=0)
-
-	print("Last index is " + str(i) + "  this should be one  or zero, give this some thought.	  ")
-
-	self.W_h[0] = self.W_h[0] - self.eta * grad_w_h
-	self.b_h[0] = self.b_h[0] - self.eta * grad_b_h
-
+        self.W_h = self.W_h - self.eta * grad_w_h
+        self.b_h = self.b_h - self.eta * grad_b_h
+        print(self.W_h)
         return None
 
 
@@ -222,11 +199,16 @@ class NeuralNetRegressor:
         """
 
         Z_hidden, A_hidden, Z_out, A_out = self._forwardprop(X)
-        return A_out
+
+        if (self.tpe == "logistic"):
+            return np.where(A_out >= 0.5, 1, 0)
+        elif (self.tpe == "regression"):
+            return A_out
 
     def _minibatch_sgd(self, X_train, y_train):
         """
         Performes the stochastic gradient descent with mini-batches for one epoch.
+
 
         X_train : array, shape = [n_samples, n_features]
             Input layer with original features.
@@ -299,12 +281,18 @@ class NeuralNetRegressor:
             y_test = y_test.reshape((len(y_test),1))
             y_train = y_train.reshape((len(y_train),1))
 
+            if (self.tpe == "regression"):
+                # Cost without penalty (y-X.dot(self.W_out)).T.dot(y-X.dot(self.W_out))
+                train_preform = mean_squared_error(y_train, y_train_pred)
+                valid_preform = mean_squared_error(y_test, y_test_pred)
+                self.eval_['train_preform'].append(train_preform)
+                self.eval_['valid_preform'].append(valid_preform)
 
-	    # Cost without penalty (y-X.dot(self.W_out)).T.dot(y-X.dot(self.W_out))
-	    train_preform = mean_squared_error(y_train, y_train_pred)
-	    valid_preform = mean_squared_error(y_test, y_test_pred)
-	    self.eval_['train_preform'].append(train_preform)
-	    self.eval_['valid_preform'].append(valid_preform)
-
+            elif(self.tpe == "logistic"):
+                #Calculate accuracy
+                acc_test = np.sum(y_test == y_test_pred)/len(y_test)
+                acc_train = np.sum(y_train == y_train_pred)/len(y_train)
+                self.eval_['train_preform'].append(acc_train)
+                self.eval_['valid_preform'].append(acc_test)
 
         return self
