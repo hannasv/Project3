@@ -1,7 +1,8 @@
 import numpy as np
 from utils import r2_score, mean_squared_error
 
-class NeuralNetMLP:
+class NeuralNetRegressor:
+
     """Multi-layer perceptron for regression or classification.
 
     Parameters
@@ -45,7 +46,7 @@ class NeuralNetMLP:
         Output bias after fitting.
 
     """
-    def __init__(self, n_hidden=30,  epochs=100, eta=0.001, shuffle=True,
+    def __init__(self, n_hidden = [30],  epochs=100, eta=0.001, shuffle=True,
                  batch_size=1, seed=None, alpha=0.0001, activation='sigmoid', tpe = "logistic"):
 
         self.random = np.random.RandomState(seed)
@@ -122,13 +123,8 @@ class NeuralNetMLP:
         Z_hidden = np.clip(np.dot(X, self.W_h), -250,250)+ self.b_h
         A_hidden = self.activate(Z_hidden, self.activation, deriv = False)
         Z_out = np.dot(A_hidden, self.W_out) + self.b_out
-
-        if (self.tpe == "regression"):
-            A_out = self.activate(Z_out, "linear", deriv = False)
-        elif (self.tpe == "logistic"):
-            A_out = self.activate(Z_out, "sigmoid", deriv = False)
-        else:
-            raise ValueError('Invalid activation function {}'.format(self.tpe))
+	# Regression problem
+        A_out = self.activate(Z_out, "linear", deriv = False)
 
         return Z_hidden, A_hidden, Z_out, A_out
 
@@ -151,15 +147,12 @@ class NeuralNetMLP:
             The index where you iterate from.
         """
 
-        delta_a_out = A_out - y_train[batch_idx].reshape(self.batch_size, 1)
+	# This is the derivative assuming our costfunction is 0.5*two_norm(A_out - y)**2
+	# This results in different backpropagation 
 
-        if (self.tpe == "regression"):
-            act_derivative_out = self.activate(Z_out, "linear", deriv = True)
-        elif (self.tpe == "logistic"):
-            act_derivative_out = self.activate(Z_out, "sigmoid", deriv = True)
-        else:
-            raise ValueError('Invalid activation function {}'.format(self.tpe))
-        # Since we are in the regression case with a linear ouput funct.
+        delta_a_out = A_out - y_train[batch_idx].reshape(self.batch_size, 1)
+        # Since we are in the regression case with a linear ouput funct.	
+	act_derivative_out = 1
 
         delta_out = delta_a_out*act_derivative_out
         grad_w_out = np.dot(A_hidden.T, delta_out)
