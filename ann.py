@@ -168,8 +168,6 @@ class NeuralNetMLP:
         self.W_out = self.W_out - self.eta * grad_w_out
         self.b_out = self.b_out - self.eta * grad_b_out
 
-        print(self.W_out)
-
         act_derivative_h = self.activate(Z_hidden, self.activation, deriv=True)
         error_hidden = np.dot(delta_out, self.W_out.T) * act_derivative_h
         grad_w_h = np.dot(X_train[batch_idx].T, error_hidden)
@@ -177,7 +175,7 @@ class NeuralNetMLP:
 
         self.W_h = self.W_h - self.eta * grad_w_h
         self.b_h = self.b_h - self.eta * grad_b_h
-        print(self.W_h)
+
         return None
 
 

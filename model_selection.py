@@ -16,6 +16,8 @@ __email__ = 'hanna.svennevik@fys.uio.no', 'paulinatedesco@gmail.com'
 import numpy as np
 from utils import bootstrap, mean_squared_error, train_test_split, r2_score
 
+from sklearn.model_selection import train_test_split
+
 class GridSearch:
 
     """
@@ -50,7 +52,7 @@ class GridSearch:
 
         # Splitting our original dataset into test and train.
         X_train, X_test, z_train, z_test = train_test_split(
-            X, z, split_size=split_size, random_state=105
+            X, z, test_size=split_size
         )
 
         " Returning these dictionaries to plot mse vs model"
