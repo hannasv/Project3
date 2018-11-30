@@ -24,8 +24,6 @@ class NeuralNetRegressor:
         Choosing the activationfunction.
     alpha : float (default 0.0001)
         The steepnes of the activation function elu. UPDATE
-    tpe : string (defalt "logistic")
-        Parameter to initialize a type of network.
 
     Attributes
     -----------
@@ -47,7 +45,7 @@ class NeuralNetRegressor:
 
     """
     def __init__(self, n_hidden = [30],  epochs=100, eta=0.001, shuffle=True,
-                 batch_size=1, seed=None, alpha=0.0001, activation='sigmoid', tpe = "logistic"):
+                 batch_size=1, seed=None, alpha=0.0001, activation='sigmoid'):
 
         self.random = np.random.RandomState(seed)
         self.n_hidden = n_hidden
@@ -58,8 +56,7 @@ class NeuralNetRegressor:
         self.batch_size = batch_size
         self.alpha = alpha
         self.activation = activation
-        self.tpe = tpe
-	self.n_hidden_layers = len(self.n_hidden)
+        self.n_hidden_layers = len(self.n_hidden)
 
         self.W_h = None
         self.b_h = None
@@ -104,46 +101,63 @@ class NeuralNetRegressor:
             Input layer with original features.
         """
         n_samples, n_features = np.shape(X_train)
-	n_output = n_samples # This is the numeber of gridcells and we want to make one prediction pr cell. 
-	# It this doesn't work calculate the number of griddcells.
+        n_output = 1 
+        
+        # This is the numeber of gridcells and we want to make one prediction pr cell. 
+        # It this doesn't work calculate the number of griddcells.
 
-        self.b_h =  [np.ones((1, self.n_hidden[i])) for i in range(len(self.n_hidden)) ]
+        self.b_h =  [] #np.ones((self.n_hidden_layers, self.n_hidden[0]))
         self.W_h = []
 
-	for i in range(len(self.n_hidden)):
-		if (i == 0):
-			self.W_h.append(self.random.normal(loc=0.0, scale=0.1, size=(n_features, self.n_hidden[i])))
-		else:
-			self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden[i-1], self.n_hidden[i]))
-
-
-        self.b_out = np.ones((1, n_outputs)) 
+        for i in range(len(self.n_hidden)):
+            if (i == 0):
+                self.W_h.append(self.random.normal(loc=0.0, scale=0.1, size=(n_features, self.n_hidden[0])))
+                self.b_h.append(np.ones(self.n_hidden[0]))
+            else:
+                self.W_h.append(self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden[i-1], self.n_hidden[i])))
+                self.b_h.append(np.ones(self.n_hidden[i]))       
+            
+        self.b_out = [1]
         self.W_out = self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden[-1], n_output))
-
-
+        
+        #print("Shape b_h", np.shape(self.b_h))
+        #print("Shape W_h", np.shape(self.W_h))
+        #print("Shape b_out", np.shape(self.b_out))
+        #print("Shape W_out", np.shape(self.W_out))
+        
+        
     def _forwardprop(self, X):
         """Compute forward propagation step
 
         X : array, shape = [n_samples, n_features]
             Input layer with original features.
         """
-	A_hidden = []
-	Z_hidden = []
-
-	for i in range(self.n_hidden_layers):
-		z_temp =  np.dot(X, self.W_h[i])+ self.b_h[i]
-	        Z_hidden.append(z_temp)	
-		a_temp = self.activate(z_temp, self.activation, deriv = False)
-	        A_hidden.append(a_temp)
+        A_hidden = []
+        Z_hidden = []
+        
+        #print("self.n_hidden_layers: " , self.n_hidden_layers)
+        #print("self.W_h[i] ", np.shape(self.W_h[0]))
+        for i in range(self.n_hidden_layers):
+            if i == 0:
+                z_temp =  np.dot(X, self.W_h[i]) + self.b_h[i]
+                #print(z_temp)
+            else:
+                z_temp = np.dot(a_temp, self.W_h[i]) + self.b_h[i]
+                #print(z_temp)
+                
+            Z_hidden.append(z_temp)
+            a_temp = self.activate(z_temp, self.activation, deriv = False)
+            #print(a_temp)
+            A_hidden.append(a_temp)
 
         Z_out = np.dot(a_temp, self.W_out) + self.b_out
-	# Linear activation in the output layer when you have 
+        # Linear activation in the output layer when you have a regression problem
         A_out = Z_out
 
         return Z_hidden, A_hidden, Z_out, A_out
 
     def _backprop(self, y_train, X_train, A_hidden, Z_hidden, A_out, Z_out, batch_idx):
-        """ Backpropagation algorithmn for MLP with  one hidden layer
+        """ Backpropagation algorithmn for MLP with a arbitrary number of hidden nodes and layers.
 
         X_train : array, shape = [n_samples, n_features]
             Input layer with original features.
@@ -161,45 +175,70 @@ class NeuralNetRegressor:
             The index where you iterate from.
         """
 
-	# This is the derivative assuming our costfunction is 0.5*two_norm(A_out - y)**2
-	# This results in different backpropagation 
+        # This is the derivative assuming our costfunction is 0.5*two_norm(A_out - y)**2
+        # This results in different backpropagation 
 
-        error_out = A_out - y_train[batch_idx].reshape(self.batch_size, 1)
-        # Since we are in the regression case with a linear ouput funct.	
-	act_derivative_out = 1
+        
+        # Cheack if its the last batch
+        #if (len(y_train[batch_idx]) < self.batch_size):
+        
+        error_out = A_out - y_train[batch_idx]
+        #print("   A_out ", np.shape(A_out))
+        #print(" y_train[batch_idx]  ", np.shape(y_train[batch_idx]))
+        # removed reshape(batch_ind, 1)
+        
+        
+        # Since we are in the regression case with a linear ouput funct.
+        act_derivative_out = 1
 
         delta_out = error_out*act_derivative_out
 
         grad_w_out = np.dot(A_hidden[-1].T, delta_out)
         grad_b_out = np.sum(delta_out, axis=0)
 
+        # Updating the output weights 
         self.W_out = self.W_out - self.eta * grad_w_out
         self.b_out = self.b_out - self.eta * grad_b_out
+        
+        # Looping over all the hidden layers except one
+        i = 0
+        while (i < self.n_hidden_layers-1):
+            # Index moving backward in the layers.
+            #print("this should only be one loop")
+            layer_ind = self.n_hidden_layers - 1 - i
+            #print("layer_ind:  : ", layer_ind)
+            act_derivative_h = self.activate(Z_hidden[layer_ind], self.activation, deriv=True)
+            
+            if (i == 0):
+                error_prev = np.dot(delta_out, self.W_out.T) * act_derivative_h
+            else:
+                #print("np.shape(error_prev)", np.shape(error_prev))
+                error_prev = np.dot(error_prev, self.W_h[layer_ind+1].T) * act_derivative_h
+            
+            grad_w_h = np.dot(A_hidden[layer_ind - 1].T, error_prev)
+            grad_b_h = np.sum(error_prev, axis=0)
+            
+            self.W_h[layer_ind] = self.W_h[layer_ind] - self.eta * grad_w_h
+            self.b_h[layer_ind] = self.b_h[layer_ind] - self.eta * grad_b_h
+            i += 1
+            
+        #print(" ERROR PREV ", np.shape(error_prev))
+        #print(" self.W_h[layer_ind] ", np.shape(self.W_h[layer_ind]))
+        act_derivative_h = self.activate(Z_hidden[0], self.activation, deriv=True)    
+        #print(" act_derivative_h ", np.shape( act_derivative_h ))
+        error_last = np.dot(error_prev, self.W_h[layer_ind].T) * act_derivative_h
 
-        for i in range(self.n_hidden_layers):
-		layer_ind = self.n_hidden_layers-1-i
+        grad_w_h = np.dot(X_train[batch_idx].T, error_last)
+        grad_b_h = np.sum(error_last, axis=0)
 
-        	act_derivative_h = self.activate(Z_hidden[layer_ind], self.activation, deriv=True)
-		if (i == 0):
-        		error_prev = np.dot(delta_out, self.W_out.T) * act_derivative_h
-		else:
-			error_prev = np.dot(delta_prev, self.W_h[layer_ind + 1].T) * act_derivative_h	
-
-        	grad_w_h = np.dot(A_hidden[layer_ind - 1].T, error_hidden)
-        	grad_b_h = np.sum(error_hidden, axis=0)
-
-        	self.W_h[layer_ind + 1] = self.W_h[layer_ind + 1] - self.eta * grad_w_h
-        	self.b_h[layer_ind + 1] = self.b_h[layer_ind + 1] - self.eta * grad_b_h
-
-	error_last = np.dot(delta_prev, self.W_h[layer_ind + 1].T) * act_derivative_h	
-
-	grad_w_h = np.dot(X_train[batch_idx].T, error_last)
-	grad_b_h = np.sum(error_hidden, axis=0)
-
-	print("Last index is " + str(i) + "  this should be one  or zero, give this some thought.	  ")
-
-	self.W_h[0] = self.W_h[0] - self.eta * grad_w_h
-	self.b_h[0] = self.b_h[0] - self.eta * grad_b_h
+        #print("-----------------")
+        #print(" np.shape(self.b_h[0])", np.shape(self.b_h[0]))
+        #print(" np.shape(self.W_h[layer_ind] )", np.shape(self.W_h[layer_ind] ))
+        #print(" np.shape(grad_b_h)", np.shape(grad_b_h))
+        #print("-----------------------")
+        
+        self.W_h[0] = self.W_h[0] - self.eta * grad_w_h
+        self.b_h[0] = self.b_h[0] - self.eta * grad_b_h
 
         return None
 
@@ -222,7 +261,7 @@ class NeuralNetRegressor:
         """
 
         Z_hidden, A_hidden, Z_out, A_out = self._forwardprop(X)
-        return A_out
+        return Z_out
 
     def _minibatch_sgd(self, X_train, y_train):
         """
@@ -278,7 +317,6 @@ class NeuralNetRegressor:
         """
 
         self.initialize_weights_and_bias(X_train)
-        #print(self.W_out.shape)
 
         # for progress formatting
         epoch_strlen = len(str(self.epochs))
@@ -300,11 +338,10 @@ class NeuralNetRegressor:
             y_train = y_train.reshape((len(y_train),1))
 
 
-	    # Cost without penalty (y-X.dot(self.W_out)).T.dot(y-X.dot(self.W_out))
-	    train_preform = mean_squared_error(y_train, y_train_pred)
-	    valid_preform = mean_squared_error(y_test, y_test_pred)
-	    self.eval_['train_preform'].append(train_preform)
-	    self.eval_['valid_preform'].append(valid_preform)
-
+        # Cost without penalty (y-X.dot(self.W_out)).T.dot(y-X.dot(self.W_out))
+        train_preform = mean_squared_error(y_train, y_train_pred) 
+        valid_preform = mean_squared_error(y_test, y_test_pred)
+        self.eval_['train_preform'].append(train_preform)
+        self.eval_['valid_preform'].append(valid_preform)
 
         return self
