@@ -1,5 +1,5 @@
 import numpy as np
-from utils import r2_score, mean_squared_error
+from utils import r2_score, mean_squared_error, A_R2, NRMSE
 
 class NeuralNetRegressor:
 
@@ -229,7 +229,7 @@ class NeuralNetRegressor:
         error_last = np.dot(error_prev, self.W_h[layer_ind].T) * act_derivative_h
 
         grad_w_h = np.dot(X_train[batch_idx].T, error_last)
-        grad_b_h = np.sum(error_last, axis=0)
+        grad_b_h = np.sum(error_last, axis = 0)
 
         #print("-----------------")
         #print(" np.shape(self.b_h[0])", np.shape(self.b_h[0]))
@@ -296,6 +296,7 @@ class NeuralNetRegressor:
 
         return self
 
+    
     def fit(self, X_train, y_train, X_test=None, y_test=None):
         """ Learn weights from training data.
 
@@ -320,7 +321,7 @@ class NeuralNetRegressor:
 
         # for progress formatting
         epoch_strlen = len(str(self.epochs))
-        self.eval_ = {'cost': [], 'train_preform': [], 'valid_preform': []}
+        self.eval_ = {'cost_train': [], 'cost_test': [], 'train_preform': [], 'valid_preform': []}
 
         # iterate over training epochs
         for epoch in range(self.epochs):
@@ -330,6 +331,7 @@ class NeuralNetRegressor:
 
             # Evaluation after each epoch during training
             z_h, a_h, z_out, a_out = self._forwardprop(X_train)
+            _, _, _, a_out_test = self._forwardprop(X_test)
 
             y_train_pred = self.predict(X_train)
             y_test_pred = self.predict(X_test)
@@ -337,11 +339,16 @@ class NeuralNetRegressor:
             y_test = y_test.reshape((len(y_test),1))
             y_train = y_train.reshape((len(y_train),1))
 
+            #train_preform = mean_squared_error(y_train, y_train_pred) 
+            #valid_preform = mean_squared_error(y_test, y_test_pred)
+            train_preform = NRMSE(y_train, y_train_pred) 
+            valid_preform = NRMSE(y_test, y_test_pred)
+            cost_train = (y_train - a_out).T.dot(y_train - a_out)
+            cost_test = (y_test - a_out_test).T.dot(y_test - a_out_test)
 
-        # Cost without penalty (y-X.dot(self.W_out)).T.dot(y-X.dot(self.W_out))
-        train_preform = mean_squared_error(y_train, y_train_pred) 
-        valid_preform = mean_squared_error(y_test, y_test_pred)
-        self.eval_['train_preform'].append(train_preform)
-        self.eval_['valid_preform'].append(valid_preform)
+            self.eval_['cost_train'].append(cost_train)
+            self.eval_['cost_test'].append(cost_test)
+            self.eval_['train_preform'].append(train_preform)
+            self.eval_['valid_preform'].append(valid_preform)
 
         return self
