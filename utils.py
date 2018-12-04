@@ -88,3 +88,10 @@ def ci(x):
 def error(y_test, y_pred):
     square_diff =  [np.square(y_test - y_pred[i]) for i in range(np.shape(y_pred)[0])]
     return np.mean( np.mean(square_diff ))
+
+
+def A_R2(y_true, y_pred, n, p):
+    return 1 - (1 - r2_score( y_true, y_pred))*((n-1)/(n-p-1))
+
+def NRMSE(y_true, y_pred):
+    return np.sqrt(mean_squared_error(y_true, y_pred))/np.mean(y_true)
