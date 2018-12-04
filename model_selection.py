@@ -14,7 +14,7 @@ __email__ = 'hanna.svennevik@fys.uio.no', 'paulinatedesco@gmail.com'
 
 
 import numpy as np
-from utils import bootstrap, mean_squared_error, train_test_split, r2_score
+from utils import bootstrap, mean_squared_error, train_test_split, r2_score, A_R2, NRMSE
 
 from sklearn.model_selection import train_test_split
 
@@ -69,10 +69,18 @@ class GridSearch:
             estimator.fit(X_train, z_train)
             temp = estimator.predict(X_test)
             temp2 = estimator.predict(X_train)
-            self.mse_test.append(mean_squared_error(z_test, temp))
-            self.mse_train.append(mean_squared_error(z_train, temp2))
-            self.r2_test.append(r2_score(z_test, temp))
-            self.r2_train.append(r2_score(z_train, temp2))
+            n,p = np.shape(X_train)
+            
+            #self.mse_test.append(mean_squared_error(z_test, temp))
+            #self.mse_train.append(mean_squared_error(z_train, temp2))
+            #self.r2_test.append(r2_score(z_test, temp))
+            #self.r2_train.append(r2_score(z_train, temp2))
+            
+            self.mse_test.append(NRMSE(z_test, temp))
+            self.mse_train.append(NRMSE(z_train, temp2))
+            self.r2_test.append(A_R2(z_test, temp,n,p))
+            self.r2_train.append(A_R2(z_train, temp2, n, p))
+            
             self.z_pred.append(temp)
             self.coef_.append(estimator.coef_)
         return self
