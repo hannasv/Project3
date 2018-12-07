@@ -1,5 +1,5 @@
 import numpy as np
-from utils import r2_score, mean_squared_error, A_R2, NRMSE
+from utils import r2_score, mean_squared_error, A_R2, NRMSE, transforming_predictorspace, standardicing_responce
 
 class NeuralNetRegressor:
 
@@ -120,6 +120,19 @@ class NeuralNetRegressor:
         self.b_out = [1]
         self.W_out = self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden[-1], n_output))
         
+        """ 
+        n_output = 1
+        n_samples, n_features = np.shape(X_train)
+        # Using three hidden h_layers
+        self.b_h =  np.ones((1, self.n_hidden))
+        self.W_h = self.random.normal(loc=0.0, scale=0.1, size=(n_features, self.n_hidden))
+
+        self.b_out = np.ones(n_output)
+        self.W_out = self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden, n_output))
+        
+        """
+        
+        
         #print("Shape b_h", np.shape(self.b_h))
         #print("Shape W_h", np.shape(self.W_h))
         #print("Shape b_out", np.shape(self.b_out))
@@ -178,16 +191,8 @@ class NeuralNetRegressor:
         # This is the derivative assuming our costfunction is 0.5*two_norm(A_out - y)**2
         # This results in different backpropagation 
 
-        
-        # Cheack if its the last batch
-        #if (len(y_train[batch_idx]) < self.batch_size):
-        
-        error_out = A_out - y_train[batch_idx]
-        #print("   A_out ", np.shape(A_out))
-        #print(" y_train[batch_idx]  ", np.shape(y_train[batch_idx]))
-        # removed reshape(batch_ind, 1)
-        
-        
+        error_out = A_out - y_train[batch_idx].reshape(self.batch_size, 1)
+          
         # Since we are in the regression case with a linear ouput funct.
         act_derivative_out = 1
 
@@ -199,8 +204,11 @@ class NeuralNetRegressor:
         # Updating the output weights 
         self.W_out = self.W_out - self.eta * grad_w_out
         self.b_out = self.b_out - self.eta * grad_b_out
+     
         
         # Looping over all the hidden layers except one
+        # If the layer only have one layer it doesn't go into this while loop         
+        
         i = 0
         while (i < self.n_hidden_layers-1):
             # Index moving backward in the layers.
@@ -222,11 +230,14 @@ class NeuralNetRegressor:
             self.b_h[layer_ind] = self.b_h[layer_ind] - self.eta * grad_b_h
             i += 1
             
-        #print(" ERROR PREV ", np.shape(error_prev))
-        #print(" self.W_h[layer_ind] ", np.shape(self.W_h[layer_ind]))
-        act_derivative_h = self.activate(Z_hidden[0], self.activation, deriv=True)    
-        #print(" act_derivative_h ", np.shape( act_derivative_h ))
-        error_last = np.dot(error_prev, self.W_h[layer_ind].T) * act_derivative_h
+   
+        act_derivative_h = self.activate(Z_hidden[0], self.activation, deriv=True)  
+    
+        # Denne linjen er forskjelling
+        if( self.n_hidden_layers ==1):
+            error_last = np.dot(delta_out, self.W_out.T) * act_derivative_h
+        else:
+            error_last = np.dot(error_prev, self.W_h[layer_ind].T) * act_derivative_h
 
         grad_w_h = np.dot(X_train[batch_idx].T, error_last)
         grad_b_h = np.sum(error_last, axis = 0)
@@ -339,12 +350,20 @@ class NeuralNetRegressor:
             y_test = y_test.reshape((len(y_test),1))
             y_train = y_train.reshape((len(y_train),1))
 
-            #train_preform = mean_squared_error(y_train, y_train_pred) 
-            #valid_preform = mean_squared_error(y_test, y_test_pred)
-            train_preform = NRMSE(y_train, y_train_pred) 
-            valid_preform = NRMSE(y_test, y_test_pred)
-            cost_train = (y_train - a_out).T.dot(y_train - a_out)
-            cost_test = (y_test - a_out_test).T.dot(y_test - a_out_test)
+            # need to tranform the output back into predictor space and normalize the output. 
+            y_test = standardicing_responce(y_test)
+            y_test_pred = standardicing_responce(transforming_predictorspace(y_test_pred))
+            
+            y_train = standardicing_responce(y_train)
+            y_train_pred = standardicing_responce(transforming_predictorspace(y_train))
+            
+            train_preform = mean_squared_error(y_train, y_train_pred) 
+            valid_preform = mean_squared_error(y_test, y_test_pred)
+            
+            #train_preform = NRMSE(y_train, y_train_pred) 
+            #valid_preform = NRMSE(y_test, y_test_pred)
+            cost_train = 0.5*(y_train - a_out).T.dot(y_train - a_out)
+            cost_test = 0.5*(y_test - a_out_test).T.dot(y_test - a_out_test)
 
             self.eval_['cost_train'].append(cost_train)
             self.eval_['cost_test'].append(cost_test)
