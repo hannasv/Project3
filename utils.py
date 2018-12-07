@@ -95,3 +95,12 @@ def A_R2(y_true, y_pred, n, p):
 
 def NRMSE(y_true, y_pred):
     return np.sqrt(mean_squared_error(y_true, y_pred))/np.mean(y_true)
+
+def transforming_predictorspace(y):
+    """ Transforming values which are predicted to be outside of the predictor space back into the predictorspace.  """
+    y[y>1] = 1
+    y[y<0] = 0
+    return y
+
+def standardicing_responce(y):
+    return (y - np.mean(y))/np.std(y)

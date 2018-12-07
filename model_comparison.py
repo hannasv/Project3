@@ -84,7 +84,6 @@ def model_comparison(models, param_grid, X, z, split_size=0.2, verbose=True):
 
         coeffs[name].append(grid.coef_)
 
-    # find best mse Hanna moved this out of the loop
     mn, idx = min((grid.mse_test[i], i) for i in range(len(grid.mse_test)))
     print(idx)
     z_pred_best[name] = grid.z_pred[idx]
