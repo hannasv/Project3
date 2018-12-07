@@ -190,8 +190,8 @@ class NeuralNetRegressor:
 
         # This is the derivative assuming our costfunction is 0.5*two_norm(A_out - y)**2
         # This results in different backpropagation 
-
-        error_out = A_out - y_train[batch_idx].reshape(self.batch_size, 1)
+        
+        error_out = A_out - y_train[batch_idx].reshape(len(y_train[batch_idx]), 1)
           
         # Since we are in the regression case with a linear ouput funct.
         act_derivative_out = 1
@@ -233,8 +233,8 @@ class NeuralNetRegressor:
    
         act_derivative_h = self.activate(Z_hidden[0], self.activation, deriv=True)  
     
-        # Denne linjen er forskjelling
-        if( self.n_hidden_layers ==1):
+        # Case with one hidden layer doesn't enter the while loop.
+        if( self.n_hidden_layers == 1):
             error_last = np.dot(delta_out, self.W_out.T) * act_derivative_h
         else:
             error_last = np.dot(error_prev, self.W_h[layer_ind].T) * act_derivative_h
@@ -364,7 +364,10 @@ class NeuralNetRegressor:
             #valid_preform = NRMSE(y_test, y_test_pred)
             cost_train = 0.5*(y_train - a_out).T.dot(y_train - a_out)
             cost_test = 0.5*(y_test - a_out_test).T.dot(y_test - a_out_test)
-
+            print(" Epoch " + str(epoch) + " cost train: " + str(cost_train))
+            print(" Epoch " + str(epoch) + " cost test: " + str(cost_test))
+            print("   ")
+             
             self.eval_['cost_train'].append(cost_train)
             self.eval_['cost_test'].append(cost_test)
             self.eval_['train_preform'].append(train_preform)
