@@ -17,7 +17,7 @@ import algorithms
 import numpy as np
 from model_selection import GridSearch
 
-def model_comparison(models, param_grid, X, z, split_size=0.2, verbose=True):
+def model_comparison(models, param_grid, X, z, split_size=0.2, feature_scale = False, verbose=True):
     """Perform the model comparison experiment.
 
     Args:
@@ -73,7 +73,7 @@ def model_comparison(models, param_grid, X, z, split_size=0.2, verbose=True):
         if verbose:
             print('Testing model: {}'.format(name))
 
-        grid = GridSearch(estimator, param_grid[name], name)
+        grid = GridSearch(estimator, param_grid[name], name, feature_scale)
         grid.fit(X, z, split_size=0.2)
 
         # store the scores for each model

@@ -16,7 +16,7 @@ __email__ = 'hanna.svennevik@fys.uio.no', 'paulinatedesco@gmail.com'
 import numpy as np
 from utils import bootstrap, mean_squared_error, train_test_split, r2_score, A_R2, NRMSE, transforming_predictorspace, standardicing_responce
 
-from sklearn.model_selection import train_test_split
+#from sklearn.model_selection import train_test_split
 
 class GridSearch:
 
@@ -24,10 +24,12 @@ class GridSearch:
     Determines optimal hyperparameter for given algorithm, without resampling.
     """
 
-    def __init__(self, model, params, name):
+    def __init__(self, model, params, name, feature_scale = False):
         self.model = model
         self.params = params
         self.name = name
+        self.feature_scale = feature_scale
+        
         self.best_mse = None
         self.best_r2 = None
         self.best_param_mse = None
@@ -51,9 +53,7 @@ class GridSearch:
         self.train_scores_r2, self.test_scores_r2 = [], []
 
         # Splitting our original dataset into test and train.
-        X_train, X_test, z_train, z_test = train_test_split(
-            X, z, test_size=split_size
-        )
+        X_train, X_test, z_train, z_test = train_test_split(X, z, test_size = split_size, feature_scale = self.feature_scale)
 
         """ Returning these dictionaries to plot (standardized response) mse, r2 vs model"""
         self.mse_test = []
@@ -80,19 +80,15 @@ class GridSearch:
             temp = standardicing_responce(temp)
             temp2 = standardicing_responce(temp2)
                 
-            n,p = np.shape(X_train)
+            #n,p = np.shape(X_train) Only nessesary for using adjusted r2 score.
             
             z_test = standardicing_responce(z_test)
             z_train = standardicing_responce(z_train)
-            #self.mse_test.append(mean_squared_error(z_test, temp))
-            #self.mse_train.append(mean_squared_error(z_train, temp2))
-            #self.r2_test.append(r2_score(z_test, temp))
-            #self.r2_train.append(r2_score(z_train, temp2))
             
             self.mse_test.append(mean_squared_error(z_test, temp))
             self.mse_train.append(mean_squared_error(z_train, temp2))
-            self.r2_test.append(A_R2(z_test, temp,n,p))
-            self.r2_train.append(A_R2(z_train, temp2, n, p))
+            self.r2_test.append(r2_score(z_test, temp))
+            self.r2_train.append(r2_score(z_train, temp2))
             
             self.z_pred.append(temp)
             self.coef_.append(estimator.coef_)
