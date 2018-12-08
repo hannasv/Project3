@@ -242,7 +242,7 @@ class NeuralNetRegressor:
         grad_w_h = np.dot(X_train[batch_idx].T, error_last)
         grad_b_h = np.sum(error_last, axis = 0)
 
-        #print("-----------------")
+        #("-----------------")
         #print(" np.shape(self.b_h[0])", np.shape(self.b_h[0]))
         #print(" np.shape(self.W_h[layer_ind] )", np.shape(self.W_h[layer_ind] ))
         #print(" np.shape(grad_b_h)", np.shape(grad_b_h))
@@ -364,9 +364,9 @@ class NeuralNetRegressor:
             #valid_preform = NRMSE(y_test, y_test_pred)
             cost_train = 0.5*(y_train - a_out).T.dot(y_train - a_out)
             cost_test = 0.5*(y_test - a_out_test).T.dot(y_test - a_out_test)
-            print(" Epoch " + str(epoch) + " cost train: " + str(cost_train))
-            print(" Epoch " + str(epoch) + " cost test: " + str(cost_test))
-            print("   ")
+            #print(" Epoch " + str(epoch) + " cost train: " + str(cost_train))
+            #print(" Epoch " + str(epoch) + " cost test: " + str(cost_test))
+            #print("   ")
              
             self.eval_['cost_train'].append(cost_train)
             self.eval_['cost_test'].append(cost_test)
