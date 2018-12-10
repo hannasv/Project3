@@ -367,9 +367,9 @@ class NeuralNetRegressor:
             #print(" Epoch " + str(epoch) + " cost train: " + str(cost_train))
             #print(" Epoch " + str(epoch) + " cost test: " + str(cost_test))
             #print("   ")
-             
-            self.eval_['cost_train'].append(cost_train)
-            self.eval_['cost_test'].append(cost_test)
+            
+            self.eval_['cost_train'].append(cost_train[0][0])
+            self.eval_['cost_test'].append(cost_test[0][0])
             self.eval_['train_preform'].append(train_preform)
             self.eval_['valid_preform'].append(valid_preform)
 
