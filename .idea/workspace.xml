@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="027895b6-a1ac-49ff-b0a6-46b21ad83d86" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tflow_reg.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/tensorflow_nn-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/tensorflow_nn-checkpoint.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tensorflow_nn.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/tensorflow_nn.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trees.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/trees.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tflow_reg.py" beforeDir="false" afterPath="$PROJECT_DIR$/tflow_reg.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -24,12 +24,12 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="71" />
-          <entry key="py" value="35" />
+          <entry key="py" value="210" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="106" />
+          <entry key="Python" value="281" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -49,8 +49,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tflow_reg.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+            <state relative-caret-position="68">
+              <caret line="4" column="4" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="4" />
+              <folding>
+                <marker date="1544527979976" expanded="true" signature="50:51" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -75,10 +78,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="-18" />
-    <option name="y" value="32" />
-    <option name="width" value="252" />
-    <option name="height" value="194" />
+    <option name="x" value="-27" />
+    <option name="y" value="48" />
+    <option name="width" value="378" />
+    <option name="height" value="291" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -156,11 +159,11 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1654373" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24960254" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Python Console" weight="0.41103202" />
@@ -168,7 +171,7 @@
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.20065077" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3291815" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -184,8 +187,11 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/tflow_reg.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+        <state relative-caret-position="68">
+          <caret line="4" column="4" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="4" />
+          <folding>
+            <marker date="1544527979976" expanded="true" signature="50:51" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
