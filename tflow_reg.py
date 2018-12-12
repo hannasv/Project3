@@ -44,6 +44,8 @@ def nn_model(X, n_nodes):
 
     # Multiply by layer 2 and add bias. Then activation function
     # Obtain output
+    
+
 
     w_o = tf.Variable(tf.random.normal(n_nodes[2:4],
                                        mean=0.0,
