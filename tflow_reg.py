@@ -13,7 +13,7 @@ def nn_model(X, n_nodes):
                                        name=None
                                        ))
 
-    b_1 = tf.Variable(tf.ones(n_nodes[1]))
+    b_1 = tf.Variable(tf.zeros(n_nodes[1]))
 
 
     # Define layer 1 and activation function
