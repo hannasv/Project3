@@ -389,7 +389,7 @@ class NeuralNetRegressor:
             self.eval_['train_preform_r2'].append(train_preform_r2)
             self.eval_['valid_preform_r2'].append(valid_preform_r2)
 
-         # Calculate the error in the output
-         self.model_error = np.subtract(y_train, y_train_pred)
+        # Calculate the error in the output
+        self.model_error = np.subtract(y_train, y_train_pred)
             
         return self
