@@ -25,7 +25,7 @@ def resample(models, lmd, X, z, nboots, split_size=0.2):
 
     # Spilt the data in tran and split
     X_train, X_test, z_train, z_test_ = train_test_split(
-        X, z, split_size=split_size
+        X, z, test_size=split_size
     )
 
     # # extract data from design matrix
