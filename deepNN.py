@@ -66,6 +66,8 @@ class NeuralNetRegressor:
         # Averaged over epoch
         self.train_perfom = None
         self.test_perfom = None
+        
+        self.model_error = None
 
     def activate(self, Z, kind='elu', deriv=False):
 
@@ -332,7 +334,12 @@ class NeuralNetRegressor:
 
         # for progress formatting
         epoch_strlen = len(str(self.epochs))
-        self.eval_ = {'cost_train': [], 'cost_test': [], 'train_preform': [], 'valid_preform': []}
+        self.eval_ = {'cost_train': [], 
+                      'cost_test': [], 
+                      'train_preform': [], 
+                      'valid_preform': [],
+                      'train_preform_r2': [], 
+                      'valid_preform_r2': []}
 
         # iterate over training epochs
         for epoch in range(self.epochs):
@@ -352,25 +359,37 @@ class NeuralNetRegressor:
 
             # need to tranform the output back into predictor space and normalize the output. 
             y_test = standardicing_responce(y_test)
-            y_test_pred = standardicing_responce(transforming_predictorspace(y_test_pred))
+            
+            # Prøv uten å transformere predictor space og skriv standardicin respons ikke bruk func i util.. 
+            y_test_pred = standardicing_responce(y_test_pred)
+            #transforming_predictorspace(y_test_pred)
             
             y_train = standardicing_responce(y_train)
-            y_train_pred = standardicing_responce(transforming_predictorspace(y_train))
+            y_train_pred = standardicing_responce(y_train) #transforming_predictorspace(y_train)
             
             train_preform = mean_squared_error(y_train, y_train_pred) 
             valid_preform = mean_squared_error(y_test, y_test_pred)
             
+            train_preform_r2 = r2_score(y_train, y_train_pred) 
+            valid_preform_r2 = r2_score(y_test, y_test_pred)
+            
+            
             #train_preform = NRMSE(y_train, y_train_pred) 
             #valid_preform = NRMSE(y_test, y_test_pred)
-            cost_train = 0.5*(y_train - a_out).T.dot(y_train - a_out)
-            cost_test = 0.5*(y_test - a_out_test).T.dot(y_test - a_out_test)
+            #cost_train = 0.5*(y_train - a_out).T.dot(y_train - a_out)
+            #cost_test = 0.5*(y_test - a_out_test).T.dot(y_test - a_out_test)
             #print(" Epoch " + str(epoch) + " cost train: " + str(cost_train))
             #print(" Epoch " + str(epoch) + " cost test: " + str(cost_test))
             #print("   ")
             
-            self.eval_['cost_train'].append(cost_train[0][0])
-            self.eval_['cost_test'].append(cost_test[0][0])
+            #self.eval_['cost_train'].append(cost_train[0][0])
+            #self.eval_['cost_test'].append(cost_test[0][0])
             self.eval_['train_preform'].append(train_preform)
             self.eval_['valid_preform'].append(valid_preform)
+            self.eval_['train_preform_r2'].append(train_preform_r2)
+            self.eval_['valid_preform_r2'].append(valid_preform_r2)
 
+         # Calculate the error in the output
+         self.model_error = np.subtract(y_train, y_train_pred)
+            
         return self
