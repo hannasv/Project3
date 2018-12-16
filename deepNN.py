@@ -3,7 +3,7 @@ from utils import r2_score, mean_squared_error, A_R2, NRMSE, transforming_predic
 
 class NeuralNetRegressor:
 
-    """Multi-layer perceptron for regression or classification.
+    """Multi-layer perceptron for regression.
 
     Parameters
     ------------
@@ -122,24 +122,6 @@ class NeuralNetRegressor:
         self.b_out = [1]
         self.W_out = self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden[-1], n_output))
         
-        """ 
-        n_output = 1
-        n_samples, n_features = np.shape(X_train)
-        # Using three hidden h_layers
-        self.b_h =  np.ones((1, self.n_hidden))
-        self.W_h = self.random.normal(loc=0.0, scale=0.1, size=(n_features, self.n_hidden))
-
-        self.b_out = np.ones(n_output)
-        self.W_out = self.random.normal(loc=0.0, scale=0.1, size=(self.n_hidden, n_output))
-        
-        """
-        
-        
-        #print("Shape b_h", np.shape(self.b_h))
-        #print("Shape W_h", np.shape(self.W_h))
-        #print("Shape b_out", np.shape(self.b_out))
-        #print("Shape W_out", np.shape(self.W_out))
-        
         
     def _forwardprop(self, X):
         """Compute forward propagation step
@@ -244,12 +226,6 @@ class NeuralNetRegressor:
         grad_w_h = np.dot(X_train[batch_idx].T, error_last)
         grad_b_h = np.sum(error_last, axis = 0)
 
-        #("-----------------")
-        #print(" np.shape(self.b_h[0])", np.shape(self.b_h[0]))
-        #print(" np.shape(self.W_h[layer_ind] )", np.shape(self.W_h[layer_ind] ))
-        #print(" np.shape(grad_b_h)", np.shape(grad_b_h))
-        #print("-----------------------")
-        
         self.W_h[0] = self.W_h[0] - self.eta * grad_w_h
         self.b_h[0] = self.b_h[0] - self.eta * grad_b_h
 
@@ -357,33 +333,18 @@ class NeuralNetRegressor:
             y_test = y_test.reshape((len(y_test),1))
             y_train = y_train.reshape((len(y_train),1))
 
-            # need to tranform the output back into predictor space and normalize the output. 
             y_test = standardicing_responce(y_test)
-            
-            # Prøv uten å transformere predictor space og skriv standardicin respons ikke bruk func i util.. 
             y_test_pred = standardicing_responce(y_test_pred)
-            #transforming_predictorspace(y_test_pred)
             
             y_train = standardicing_responce(y_train)
-            y_train_pred = standardicing_responce(y_train) #transforming_predictorspace(y_train)
+            y_train_pred = standardicing_responce(y_train) 
             
             train_preform = mean_squared_error(y_train, y_train_pred) 
             valid_preform = mean_squared_error(y_test, y_test_pred)
             
             train_preform_r2 = r2_score(y_train, y_train_pred) 
             valid_preform_r2 = r2_score(y_test, y_test_pred)
-            
-            
-            #train_preform = NRMSE(y_train, y_train_pred) 
-            #valid_preform = NRMSE(y_test, y_test_pred)
-            #cost_train = 0.5*(y_train - a_out).T.dot(y_train - a_out)
-            #cost_test = 0.5*(y_test - a_out_test).T.dot(y_test - a_out_test)
-            #print(" Epoch " + str(epoch) + " cost train: " + str(cost_train))
-            #print(" Epoch " + str(epoch) + " cost test: " + str(cost_test))
-            #print("   ")
-            
-            #self.eval_['cost_train'].append(cost_train[0][0])
-            #self.eval_['cost_test'].append(cost_test[0][0])
+
             self.eval_['train_preform'].append(train_preform)
             self.eval_['valid_preform'].append(valid_preform)
             self.eval_['train_preform_r2'].append(train_preform_r2)
