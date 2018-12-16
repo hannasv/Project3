@@ -3,6 +3,7 @@ from scipy import stats
 import scipy.stats as st
 import matplotlib.pyplot as plt
 
+
 def bootstrap(X, z, random_state):
 
     # For random randint
@@ -20,7 +21,7 @@ def bootstrap(X, z, random_state):
     return X_subset, z_subset
 
 
-def train_test_split(X, z, split_size=0.2, random_state=None):
+def train_test_split(X, z, test_size = 0.2, feature_scale = False, random_state = None):
 
     # For random choice.
     np.random.seed(random_state)
@@ -30,7 +31,7 @@ def train_test_split(X, z, split_size=0.2, random_state=None):
 
     # Determine the proportion of training and test samples
     # from the data matrix size-
-    ntest_samples = int(nrows * split_size)
+    ntest_samples = int(nrows * test_size)
     ntrain_samples = int(nrows - ntest_samples)
     # Randomly select indices for training and test samples
     # without replacement.
@@ -47,7 +48,13 @@ def train_test_split(X, z, split_size=0.2, random_state=None):
     X_test = X[selected_test_samples, :]
     z_train = z[selected_train_samples]
     z_test = z[selected_test_samples]
-
+    from sklearn.preprocessing import StandardScaler
+    if feature_scale:
+        scaler = StandardScaler()
+        fit = scaler.fit(X_train)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
+        
     return X_train, X_test, z_train, z_test
 
 
@@ -95,3 +102,12 @@ def A_R2(y_true, y_pred, n, p):
 
 def NRMSE(y_true, y_pred):
     return np.sqrt(mean_squared_error(y_true, y_pred))/np.mean(y_true)
+
+def transforming_predictorspace(y):
+    """ Transforming values which are predicted to be outside of the predictor space back into the predictorspace.  """
+    y[y>1] = 1
+    y[y<0] = 0
+    return y
+
+def standardicing_responce(y):
+    return (y - np.mean(y))/np.std(y)
