@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="027895b6-a1ac-49ff-b0a6-46b21ad83d86" name="Default Changelist" comment="" />
+    <list default="true" id="027895b6-a1ac-49ff-b0a6-46b21ad83d86" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/keras_nn.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/keras_nn.ipynb" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +63,7 @@
         <entry file="file://$PROJECT_DIR$/tflow_reg_new.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="298">
-              <caret line="28" column="82" lean-forward="true" selection-start-line="28" selection-start-column="82" selection-end-line="28" selection-end-column="82" />
+              <caret line="28" column="82" selection-start-line="28" selection-start-column="82" selection-end-line="28" selection-end-column="82" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -260,7 +262,7 @@
     <entry file="file://$PROJECT_DIR$/tflow_reg_new.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="298">
-          <caret line="28" column="82" lean-forward="true" selection-start-line="28" selection-start-column="82" selection-end-line="28" selection-end-column="82" />
+          <caret line="28" column="82" selection-start-line="28" selection-start-column="82" selection-end-line="28" selection-end-column="82" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
