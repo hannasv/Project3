@@ -9,8 +9,7 @@ There are three available envornments, use env_nn.txt when running the notebooks
 ## Structure and implementations
 The programs are written inn python scrips and the results are produced in the notebooks. Writing these article produced a lot of results, we found it best to use many notebooks to keep a good order. 
 
-deepNN.py contains the program for our self-implemented neural network. This is a implroved version of project 2 ann.py, this version is improved to build networks with different numbers of nodes and number of hidden layers. The code for using linear regression has been updated with a normalization of the response. 
-
+deepNN.py contains the program for our self-implemented neural network. This is a implroved version of project 2 ann.py, this version is improved to build networks with different numbers of nodes and number of hidden layers. The code for using linear regression has been updated with a normalization of the response. The results of this can be found in the notebooks, LinearRegression.ipynb and NeuralNetworks*.ipynb.
 
 Noe om trær og keras
 
