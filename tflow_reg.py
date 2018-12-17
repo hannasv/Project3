@@ -2,6 +2,13 @@ import tensorflow as tf
 
 def nn_model(X, n_nodes):
 
+    """
+
+    :param X: features
+    :param n_nodes: number of nodes in each layer: array-like
+    :return: output
+    """
+
     X = tf.cast(X, tf.float32)
     # Define weights and biases
     # (Using normal distribution)

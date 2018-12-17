@@ -10,7 +10,7 @@ def nn_model(X, input_size, hidden_sizes, output_size, stddev=None):
     :param hidden_sizes: number of nodes of the hidden layers, array-like
     :param output_size: size of the output: 1
     :param stddev: standard deviation for better elu and relu fits
-    :return:
+    :return: output
     """
 
     X = tf.cast(X, tf.float32)
@@ -41,8 +41,8 @@ def nn_model(X, input_size, hidden_sizes, output_size, stddev=None):
 
     # add hidden layers (variable number)
     for i in range(1, len(hidden_sizes)):
-        # w.append(tf.Variable(tf.random_normal([hidden_sizes[i - 1], hidden_sizes[i]], stddev=0.1)))
-        w.append(tf.Variable(tf.truncated_normal([hidden_sizes[i - 1], hidden_sizes[i]], stddev)))
+        w.append(tf.Variable(tf.random_normal([hidden_sizes[i - 1], hidden_sizes[i]], stddev=1.0)))
+        # w.append(tf.Variable(tf.truncated_normal([hidden_sizes[i - 1], hidden_sizes[i]], stddev)))
         b.append(tf.Variable(tf.zeros([hidden_sizes[i]])))
 
     # Output layer
@@ -59,10 +59,10 @@ def nn_model(X, input_size, hidden_sizes, output_size, stddev=None):
 
     # 3) DEFINE MODEL
 
-    layer.append(tf.nn.elu(tf.matmul(X, w[0]) + b[0]))
+    layer.append(tf.nn.sigmoid(tf.matmul(X, w[0]) + b[0]))
 
     for i in range(1, len(hidden_sizes)):
-        layer.append(tf.nn.elu(tf.matmul(layer[i - 1], w[i]) + b[i]))
+        layer.append(tf.nn.sigmoid(tf.matmul(layer[i - 1], w[i]) + b[i]))
 
     output = tf.matmul(layer[-1], w[-1]) + b[-1]
 
